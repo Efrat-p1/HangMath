@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
         #app-container {
             background-color: white;
             border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
             width: 90%;
             max-width: 600px;
             height: 90%;
@@ -89,19 +90,19 @@
             outline: none;
             color: var(--primary-color);
             transition: all 0.2s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         input[type="number"]:focus {
             border-color: var(--secondary-color);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-        
+
         /* Hide number spin buttons for answer input */
-        #answer-input::-webkit-inner-spin-button, 
-        #answer-input::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        #answer-input::-webkit-inner-spin-button,
+        #answer-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         button {
@@ -175,7 +176,8 @@
             fill: none;
             stroke: var(--success-color);
             stroke-width: 6;
-            stroke-dasharray: 125.6; /* 2 * pi * 20 = 125.6 */
+            stroke-dasharray: 125.6;
+            /* 2 * pi * 20 = 125.6 */
             stroke-dashoffset: 0;
             stroke-linecap: round;
             transform-origin: 50% 50%;
@@ -220,7 +222,8 @@
             font-weight: bold;
             color: var(--primary-color);
             margin: 10px 0;
-            direction: ltr; /* Keep math equations LTR */
+            direction: ltr;
+            /* Keep math equations LTR */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -252,11 +255,25 @@
         }
 
         @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            50% {
+                transform: translateX(10px);
+            }
+
+            75% {
+                transform: translateX(-10px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
         }
 
         .pop {
@@ -264,9 +281,17 @@
         }
 
         @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         #bonus-indicator {
@@ -280,19 +305,27 @@
         }
 
         @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.1);
+            }
         }
 
         .score-popup-anim {
             opacity: 1 !important;
             transform: translateY(20px) !important;
         }
-        
+
         .level-up-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -303,9 +336,9 @@
             font-weight: bold;
             text-align: center;
         }
-
     </style>
 </head>
+
 <body>
 
     <div id="app-container">
@@ -316,8 +349,9 @@
                 <label for="max-result">עד איזה מספר לתרגל?</label>
                 <input type="number" id="max-result" value="20" min="10" max="500" step="10">
             </div>
-            
-            <div class="checkbox-group" style="display: flex; gap: 15px; margin-bottom: 30px; font-size: 1.2rem; flex-wrap: wrap; justify-content: center;">
+
+            <div class="checkbox-group"
+                style="display: flex; gap: 15px; margin-bottom: 30px; font-size: 1.2rem; flex-wrap: wrap; justify-content: center;">
                 <label><input type="checkbox" id="op-add" checked> חיבור (+)</label>
                 <label><input type="checkbox" id="op-sub" checked> חיסור (-)</label>
                 <label><input type="checkbox" id="op-mul" checked> כפל (X)</label>
@@ -331,8 +365,11 @@
             <div class="top-bar">
                 <div class="level-info" style="display: flex; flex-direction: column; align-items: flex-start;">
                     <div id="level-display">שלב: 1</div>
-                    <div id="questions-left-display" style="font-size: 0.9rem; font-weight: normal; color: #7f8c8d;">עוד 5 לשלב הבא</div>
-                    <div id="bonus-progress-display" style="font-size: 0.85rem; font-weight: bold; color: var(--secondary-color); display: none;">רצף לבונוס: 0/3</div>
+                    <div id="questions-left-display" style="font-size: 0.9rem; font-weight: normal; color: #7f8c8d;">עוד
+                        5 לשלב הבא</div>
+                    <div id="bonus-progress-display"
+                        style="font-size: 0.85rem; font-weight: bold; color: var(--secondary-color); display: none;">רצף
+                        לבונוס: 0/3</div>
                 </div>
                 <div class="circular-timer-container">
                     <svg width="50" height="50" viewBox="0 0 50 50">
@@ -343,7 +380,9 @@
                 </div>
                 <div class="score-info" style="position: relative; text-align: left;">
                     <div id="score-display">ניקוד: 0</div>
-                    <div id="score-popup" style="position: absolute; left: 0; top: 100%; color: var(--success-color); font-weight: bold; opacity: 0; transition: all 0.5s; transform: translateY(0);">+10</div>
+                    <div id="score-popup"
+                        style="position: absolute; left: 0; top: 100%; color: var(--success-color); font-weight: bold; opacity: 0; transition: all 0.5s; transform: translateY(0);">
+                        +10</div>
                 </div>
             </div>
 
@@ -351,7 +390,8 @@
                 <svg viewBox="0 0 200 250">
                     <!-- Scaffold (Always visible) -->
                     <g id="scaffold">
-                        <line x1="10" y1="240" x2="150" y2="240" stroke="#333" stroke-width="4" stroke-linecap="round" />
+                        <line x1="10" y1="240" x2="150" y2="240" stroke="#333" stroke-width="4"
+                            stroke-linecap="round" />
                         <line x1="80" y1="240" x2="80" y2="20" stroke="#333" stroke-width="4" stroke-linecap="round" />
                         <line x1="80" y1="20" x2="160" y2="20" stroke="#333" stroke-width="4" stroke-linecap="round" />
                         <line x1="160" y1="20" x2="160" y2="50" stroke="#333" stroke-width="4" stroke-linecap="round" />
@@ -389,18 +429,20 @@
             </div>
 
             <div id="feedback" class="feedback"></div>
-            
+
             <div id="level-up-overlay" class="level-up-overlay">
                 <div>כל הכבוד!</div>
                 <div style="font-size: 2rem; color: var(--secondary-color);">עלית שלב!</div>
-                <div id="level-up-bonus-info" style="font-size: 1.2rem; color: #555; margin-top: 20px; text-align: center; max-width: 80%;"></div>
+                <div id="level-up-bonus-info"
+                    style="font-size: 1.2rem; color: #555; margin-top: 20px; text-align: center; max-width: 80%;"></div>
             </div>
         </div>
 
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="screen">
             <h1 style="color: var(--danger-color); font-size: 4rem;">המשחק נגמר</h1>
-            <h2 id="final-score" style="font-size: 3rem; margin: 10px 0; color: var(--primary-color);">ניקוד סופי: 0</h2>
+            <h2 id="final-score" style="font-size: 3rem; margin: 10px 0; color: var(--primary-color);">ניקוד סופי: 0
+            </h2>
             <h3 id="final-level" style="font-size: 1.5rem; color: #7f8c8d; margin-bottom: 30px;">הגעת לשלב: 1</h3>
             <button onclick="showSetup()">שחק שוב</button>
         </div>
@@ -422,7 +464,7 @@
             if (level >= 6) return 2;
             return 3;
         }
-        
+
         let currentAnswer = 0;
         let isBonusQuestion = false;
         let isProcessingAnswer = false;
@@ -442,7 +484,7 @@
         maxResultInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') startGame();
         });
-        
+
         const levelDisplay = document.getElementById('level-display');
         const questionsLeftDisplay = document.getElementById('questions-left-display');
         const bonusProgressDisplay = document.getElementById('bonus-progress-display');
@@ -458,9 +500,9 @@
 
         // Sounds (Using simple Web Audio API beeps)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
+
         function playTone(freq, type, duration) {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             oscillator.type = type;
@@ -503,14 +545,14 @@
                 maxResultInput.value = 10;
             }
             maxResult = userMax;
-            
+
             // Read allowed operators
             allowedOperators = [];
             if (document.getElementById('op-add').checked) allowedOperators.push('+');
             if (document.getElementById('op-sub').checked) allowedOperators.push('-');
             if (document.getElementById('op-mul').checked) allowedOperators.push('X');
             if (document.getElementById('op-div').checked) allowedOperators.push('/');
-            
+
             if (allowedOperators.length === 0) {
                 // Default fallback if none selected
                 allowedOperators = ['+', '-', 'X'];
@@ -526,19 +568,19 @@
             correctAnswersInLevel = 0;
             consecutiveCorrects = 0;
             isBonusQuestion = false;
-            
+
             // Reset UI
             for (let i = 1; i <= maxMistakes; i++) {
                 document.getElementById('part-' + i).style.opacity = '0';
             }
             feedback.innerText = '';
-            
+
             updateUI();
-            
+
             setupScreen.classList.remove('active');
             gameScreen.classList.add('active');
             gameOverScreen.classList.remove('active');
-            
+
             generateQuestion();
         }
 
@@ -547,7 +589,7 @@
             answerInput.value = '';
             answerInput.focus();
             feedback.innerText = ''; // Clear old feedback if generating new question
-            
+
             // Determine if bonus question
             let requiredStreak = getRequiredStreak(currentLevel);
             if (currentLevel >= 4 && consecutiveCorrects >= requiredStreak && mistakes > 0) {
@@ -561,16 +603,16 @@
 
             // Operations based on user selection
             let availableOps = [...allowedOperators];
-            
+
             // Bias slightly to multiplication/division in advanced levels if available
             if (currentLevel >= 6) {
                 if (availableOps.includes('X')) availableOps.push('X');
                 if (availableOps.includes('/')) availableOps.push('/');
             }
-            
+
             const operatorSymbol = availableOps[Math.floor(Math.random() * availableOps.length)];
             let operand1, operand2;
-            
+
             // Adjust difficulty
             let currentMax = Math.min(maxResult, Math.max(10, Math.floor(maxResult * (0.3 + currentLevel * 0.15))));
             let minVal = Math.min(currentMax, currentLevel - 1);
@@ -603,7 +645,7 @@
             }
 
             questionText.innerText = `${operand1} ${operatorSymbol} ${operand2} =`;
-            
+
             updateUI(); // Ensure UI reflects the new state
             startTimer();
         }
@@ -612,7 +654,7 @@
             clearInterval(timerInterval);
             // Min time changed to 1000 (1 second) in final levels
             let currentLevelTime = Math.max(1000, baseTime - (currentLevel - 1) * 2000);
-            
+
             timeLeft = currentLevelTime;
             const totalTime = timeLeft;
             let previousTimeMs = Date.now();
@@ -647,10 +689,10 @@
 
         function submitAnswer() {
             if (answerInput.value === '' || isProcessingAnswer) return;
-            
+
             clearInterval(timerInterval);
             const userAnswer = parseInt(answerInput.value);
-            
+
             if (userAnswer === currentAnswer) {
                 handleCorrectAnswer();
             } else {
@@ -669,13 +711,13 @@
             playCorrectSound();
             feedback.innerText = "כל הכבוד!";
             feedback.style.color = 'var(--success-color)';
-            
+
             questionText.classList.add('pop');
             setTimeout(() => questionText.classList.remove('pop'), 500);
 
             let pointsEarned = 10 * currentLevel;
             consecutiveCorrects++;
-            
+
             if (isBonusQuestion) {
                 pointsEarned += 20 * currentLevel;
                 if (mistakes > 0) {
@@ -686,7 +728,7 @@
             }
 
             score += pointsEarned;
-            
+
             scorePopup.innerText = `+${pointsEarned}`;
             scorePopup.classList.add('score-popup-anim');
             setTimeout(() => {
@@ -717,7 +759,7 @@
                 setTimeout(() => answerInput.classList.remove('shake'), 500);
             }
             feedback.style.color = 'var(--danger-color)';
-            
+
             consecutiveCorrects = 0; // Reset streak on mistake
 
             if (isBonusQuestion) {
@@ -744,7 +786,7 @@
             currentLevel++;
             correctAnswersInLevel = 0;
             updateUI();
-            
+
             levelUpOverlay.style.display = 'flex';
             const bonusInfo = document.getElementById('level-up-bonus-info');
             if (currentLevel >= 4) {
@@ -753,7 +795,7 @@
             } else {
                 bonusInfo.innerText = "";
             }
-            
+
             setTimeout(() => {
                 levelUpOverlay.style.display = 'none';
                 generateQuestion();
@@ -772,7 +814,7 @@
             scoreDisplay.innerText = `ניקוד: ${score}`;
             let left = answersToLevelUp - correctAnswersInLevel;
             questionsLeftDisplay.innerText = `עוד ${left} לשלב הבא`;
-            
+
             if (currentLevel >= 4) {
                 bonusProgressDisplay.style.display = 'block';
                 if (isBonusQuestion) {
@@ -788,4 +830,5 @@
         }
     </script>
 </body>
+
 </html>
