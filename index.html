@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חשבון הצלה - HangMath</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --text-color: #2c3e50;
+            --font-family: 'Varela Round', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        #app-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 1.3rem;
+            color: #555;
+        }
+
+        input[type="number"] {
+            font-size: 2.5rem;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            width: 150px;
+            text-align: center;
+            font-family: var(--font-family);
+            outline: none;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        /* Hide number spin buttons for answer input */
+        #answer-input::-webkit-inner-spin-button, 
+        #answer-input::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        button {
+            font-family: var(--font-family);
+            font-size: 1.3rem;
+            padding: 16px 48px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+            background-color: #2980b9;
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        button.btn-primary {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+        }
+
+        button.btn-primary:hover {
+            background-color: #34495e;
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3);
+        }
+
+        /* Game Screen */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            padding: 15px 25px;
+            box-sizing: border-box;
+            background-color: transparent;
+            border-bottom: 1px solid #f0f2f5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .circular-timer-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-bg {
+            fill: none;
+            stroke: #ddd;
+            stroke-width: 6;
+        }
+
+        .timer-path {
+            fill: none;
+            stroke: var(--success-color);
+            stroke-width: 6;
+            stroke-dasharray: 125.6; /* 2 * pi * 20 = 125.6 */
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+        }
+
+        .timer-text {
+            position: absolute;
+            font-family: var(--font-family);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .graphics-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 60px;
+            min-height: 200px;
+        }
+
+        svg {
+            width: 200px;
+            height: 250px;
+        }
+
+        .hangman-part {
+            stroke: #2c3e50;
+            stroke-width: 5;
+            fill: none;
+            stroke-linecap: round;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .question-area {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+            direction: ltr; /* Keep math equations LTR */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        #answer-input {
+            width: 120px;
+        }
+
+        .feedback {
+            font-size: 1.5rem;
+            font-weight: bold;
+            height: 30px;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .pop {
+            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        #bonus-indicator {
+            display: none;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            animation: pulse 1s infinite alternate;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .score-popup-anim {
+            opacity: 1 !important;
+            transform: translateY(20px) !important;
+        }
+        
+        .level-up-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+            font-size: 3rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="screen active">
+            <h1>חשבון הצלה</h1>
+            <div class="input-group">
+                <label for="max-result">עד איזה מספר לתרגל?</label>
+                <input type="number" id="max-result" value="20" min="10" max="500" step="10">
+            </div>
+            
+            <div class="checkbox-group" style="display: flex; gap: 15px; margin-bottom: 30px; font-size: 1.2rem; flex-wrap: wrap; justify-content: center;">
+                <label><input type="checkbox" id="op-add" checked> חיבור (+)</label>
+                <label><input type="checkbox" id="op-sub" checked> חיסור (-)</label>
+                <label><input type="checkbox" id="op-mul" checked> כפל (X)</label>
+                <label><input type="checkbox" id="op-div"> חילוק (/)</label>
+            </div>
+            <button onclick="startGame()">התחל משחק!</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="top-bar">
+                <div class="level-info" style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <div id="level-display">שלב: 1</div>
+                    <div id="questions-left-display" style="font-size: 0.9rem; font-weight: normal; color: #7f8c8d;">עוד 5 לשלב הבא</div>
+                    <div id="bonus-progress-display" style="font-size: 0.85rem; font-weight: bold; color: var(--secondary-color); display: none;">רצף לבונוס: 0/3</div>
+                </div>
+                <div class="circular-timer-container">
+                    <svg width="50" height="50" viewBox="0 0 50 50">
+                        <circle class="timer-bg" cx="25" cy="25" r="20" />
+                        <circle class="timer-path" id="timer-path" cx="25" cy="25" r="20" />
+                    </svg>
+                    <div class="timer-text" id="timer-text">12</div>
+                </div>
+                <div class="score-info" style="position: relative; text-align: left;">
+                    <div id="score-display">ניקוד: 0</div>
+                    <div id="score-popup" style="position: absolute; left: 0; top: 100%; color: var(--success-color); font-weight: bold; opacity: 0; transition: all 0.5s; transform: translateY(0);">+10</div>
+                </div>
+            </div>
+
+            <div class="graphics-area">
+                <svg viewBox="0 0 200 250">
+                    <!-- Scaffold (Always visible) -->
+                    <g id="scaffold">
+                        <line x1="10" y1="240" x2="150" y2="240" stroke="#333" stroke-width="4" stroke-linecap="round" />
+                        <line x1="80" y1="240" x2="80" y2="20" stroke="#333" stroke-width="4" stroke-linecap="round" />
+                        <line x1="80" y1="20" x2="160" y2="20" stroke="#333" stroke-width="4" stroke-linecap="round" />
+                        <line x1="160" y1="20" x2="160" y2="50" stroke="#333" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <!-- Part 1: Head -->
+                    <circle id="part-1" class="hangman-part" cx="160" cy="70" r="20" />
+                    <!-- Part 2: Body -->
+                    <line id="part-2" class="hangman-part" x1="160" y1="90" x2="160" y2="150" />
+                    <!-- Part 3: Right Arm -->
+                    <line id="part-3" class="hangman-part" x1="160" y1="110" x2="130" y2="140" />
+                    <!-- Part 4: Left Arm -->
+                    <line id="part-4" class="hangman-part" x1="160" y1="110" x2="190" y2="140" />
+                    <!-- Part 5: Right Leg -->
+                    <line id="part-5" class="hangman-part" x1="160" y1="150" x2="130" y2="200" />
+                    <!-- Part 6: Left Leg -->
+                    <line id="part-6" class="hangman-part" x1="160" y1="150" x2="190" y2="200" />
+                    <!-- Part 7: Left Eye -->
+                    <circle id="part-7" class="hangman-part" cx="153" cy="65" r="2" />
+                    <!-- Part 8: Right Eye -->
+                    <circle id="part-8" class="hangman-part" cx="167" cy="65" r="2" />
+                    <!-- Part 9: Mouth -->
+                    <path id="part-9" class="hangman-part" d="M 153 80 Q 160 75 167 80" />
+                </svg>
+            </div>
+
+            <div id="bonus-indicator">🌟 שאלת בונוס! 🌟</div>
+
+            <div class="question-area" id="question-text">
+                5 + 3 =
+            </div>
+
+            <div class="input-area">
+                <input type="number" id="answer-input" autocomplete="off">
+                <button class="btn-primary" onclick="submitAnswer()">בדוק</button>
+            </div>
+
+            <div id="feedback" class="feedback"></div>
+            
+            <div id="level-up-overlay" class="level-up-overlay">
+                <div>כל הכבוד!</div>
+                <div style="font-size: 2rem; color: var(--secondary-color);">עלית שלב!</div>
+                <div id="level-up-bonus-info" style="font-size: 1.2rem; color: #555; margin-top: 20px; text-align: center; max-width: 80%;"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <h1 style="color: var(--danger-color); font-size: 4rem;">המשחק נגמר</h1>
+            <h2 id="final-score" style="font-size: 3rem; margin: 10px 0; color: var(--primary-color);">ניקוד סופי: 0</h2>
+            <h3 id="final-level" style="font-size: 1.5rem; color: #7f8c8d; margin-bottom: 30px;">הגעת לשלב: 1</h3>
+            <button onclick="showSetup()">שחק שוב</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let maxResult = 20;
+        let currentLevel = 1;
+        let score = 0;
+        let mistakes = 0;
+        const maxMistakes = 9;
+        let correctAnswersInLevel = 0;
+        let consecutiveCorrects = 0;
+        const answersToLevelUp = 10;
+
+        function getRequiredStreak(level) {
+            if (level >= 8) return 1;
+            if (level >= 6) return 2;
+            return 3;
+        }
+        
+        let currentAnswer = 0;
+        let isBonusQuestion = false;
+        let isProcessingAnswer = false;
+        let allowedOperators = ['+', '-', 'X'];
+
+        // Timer
+        let baseTime = 12000; // 12 seconds
+        let timeLeft = 0;
+        let timerInterval;
+        let lastTime = 0;
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const maxResultInput = document.getElementById('max-result');
+        maxResultInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') startGame();
+        });
+        
+        const levelDisplay = document.getElementById('level-display');
+        const questionsLeftDisplay = document.getElementById('questions-left-display');
+        const bonusProgressDisplay = document.getElementById('bonus-progress-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const scorePopup = document.getElementById('score-popup');
+        const timerPath = document.getElementById('timer-path');
+        const timerText = document.getElementById('timer-text');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const feedback = document.getElementById('feedback');
+        const bonusIndicator = document.getElementById('bonus-indicator');
+        const levelUpOverlay = document.getElementById('level-up-overlay');
+
+        // Sounds (Using simple Web Audio API beeps)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playTone(600, 'sine', 0.1);
+            setTimeout(() => playTone(800, 'sine', 0.15), 100);
+        }
+
+        function playWrongSound() {
+            playTone(300, 'square', 0.2);
+            setTimeout(() => playTone(200, 'square', 0.3), 150);
+        }
+
+        function playLevelUpSound() {
+            playTone(400, 'sine', 0.1);
+            setTimeout(() => playTone(500, 'sine', 0.1), 100);
+            setTimeout(() => playTone(600, 'sine', 0.1), 200);
+            setTimeout(() => playTone(800, 'sine', 0.3), 300);
+        }
+
+        function showSetup() {
+            setupScreen.classList.add('active');
+            gameScreen.classList.remove('active');
+            gameOverScreen.classList.remove('active');
+        }
+
+        function startGame() {
+            let userMax = parseInt(maxResultInput.value);
+            if (isNaN(userMax) || userMax < 5) {
+                userMax = 10;
+                maxResultInput.value = 10;
+            }
+            maxResult = userMax;
+            
+            // Read allowed operators
+            allowedOperators = [];
+            if (document.getElementById('op-add').checked) allowedOperators.push('+');
+            if (document.getElementById('op-sub').checked) allowedOperators.push('-');
+            if (document.getElementById('op-mul').checked) allowedOperators.push('X');
+            if (document.getElementById('op-div').checked) allowedOperators.push('/');
+            
+            if (allowedOperators.length === 0) {
+                // Default fallback if none selected
+                allowedOperators = ['+', '-', 'X'];
+                document.getElementById('op-add').checked = true;
+                document.getElementById('op-sub').checked = true;
+                document.getElementById('op-mul').checked = true;
+            }
+
+            // Reset state
+            currentLevel = 1;
+            score = 0;
+            mistakes = 0;
+            correctAnswersInLevel = 0;
+            consecutiveCorrects = 0;
+            isBonusQuestion = false;
+            
+            // Reset UI
+            for (let i = 1; i <= maxMistakes; i++) {
+                document.getElementById('part-' + i).style.opacity = '0';
+            }
+            feedback.innerText = '';
+            
+            updateUI();
+            
+            setupScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            gameOverScreen.classList.remove('active');
+            
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            isProcessingAnswer = false;
+            answerInput.value = '';
+            answerInput.focus();
+            feedback.innerText = ''; // Clear old feedback if generating new question
+            
+            // Determine if bonus question
+            let requiredStreak = getRequiredStreak(currentLevel);
+            if (currentLevel >= 4 && consecutiveCorrects >= requiredStreak && mistakes > 0) {
+                isBonusQuestion = true;
+                consecutiveCorrects = 0; // reset so they have to earn the next one
+                bonusIndicator.style.display = 'block';
+            } else {
+                isBonusQuestion = false;
+                bonusIndicator.style.display = 'none';
+            }
+
+            // Operations based on user selection
+            let availableOps = [...allowedOperators];
+            
+            // Bias slightly to multiplication/division in advanced levels if available
+            if (currentLevel >= 6) {
+                if (availableOps.includes('X')) availableOps.push('X');
+                if (availableOps.includes('/')) availableOps.push('/');
+            }
+            
+            const operatorSymbol = availableOps[Math.floor(Math.random() * availableOps.length)];
+            let operand1, operand2;
+            
+            // Adjust difficulty
+            let currentMax = Math.min(maxResult, Math.max(10, Math.floor(maxResult * (0.3 + currentLevel * 0.15))));
+            let minVal = Math.min(currentMax, currentLevel - 1);
+
+            if (operatorSymbol === '+') {
+                currentAnswer = minVal + Math.floor(Math.random() * (currentMax - minVal + 1));
+                operand1 = minVal + Math.floor(Math.random() * (currentAnswer - minVal + 1));
+                if (operand1 > currentAnswer) operand1 = currentAnswer;
+                operand2 = currentAnswer - operand1;
+            } else if (operatorSymbol === '-') {
+                operand1 = minVal + Math.floor(Math.random() * (currentMax - minVal + 1));
+                operand2 = Math.floor(Math.random() * (operand1 + 1));
+                currentAnswer = operand1 - operand2;
+            } else if (operatorSymbol === 'X') {
+                let maxFactor = Math.floor(Math.sqrt(currentMax));
+                operand1 = Math.floor(Math.random() * (Math.min(10 + currentLevel * 2, currentMax) + 1));
+                if (operand1 === 0) operand1 = 1;
+                let maxOperand2 = Math.floor(currentMax / operand1);
+                operand2 = Math.floor(Math.random() * (maxOperand2 + 1));
+                currentAnswer = operand1 * operand2;
+            } else if (operatorSymbol === '/') {
+                // Ensure clean division (no remainder)
+                // operand1 / operand2 = currentAnswer -> operand1 = currentAnswer * operand2
+                let maxDivisor = Math.max(2, Math.floor(Math.sqrt(currentMax)));
+                operand2 = Math.floor(Math.random() * (maxDivisor - 1)) + 2; // Divisor from 2 to sqrt
+                let maxResultForDiv = Math.floor(currentMax / operand2);
+                if (maxResultForDiv < 1) maxResultForDiv = 1;
+                currentAnswer = Math.floor(Math.random() * maxResultForDiv) + 1; // 1 to max
+                operand1 = currentAnswer * operand2;
+            }
+
+            questionText.innerText = `${operand1} ${operatorSymbol} ${operand2} =`;
+            
+            updateUI(); // Ensure UI reflects the new state
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            // Min time changed to 1000 (1 second) in final levels
+            let currentLevelTime = Math.max(1000, baseTime - (currentLevel - 1) * 2000);
+            
+            timeLeft = currentLevelTime;
+            const totalTime = timeLeft;
+            let previousTimeMs = Date.now();
+
+            timerPath.style.strokeDashoffset = '0';
+            timerPath.style.stroke = 'var(--success-color)';
+            timerText.innerText = Math.ceil(timeLeft / 1000);
+
+            timerInterval = setInterval(() => {
+                let currentTime = Date.now();
+                let deltaTime = currentTime - previousTimeMs;
+                previousTimeMs = currentTime;
+                timeLeft -= deltaTime;
+
+                let percentage = Math.max(0, timeLeft / totalTime);
+                let offset = 125.6 * (1 - percentage);
+                timerPath.style.strokeDashoffset = offset;
+                timerText.innerText = Math.ceil(Math.max(0, timeLeft) / 1000);
+
+                if (percentage < 0.3) {
+                    timerPath.style.stroke = 'var(--danger-color)';
+                } else if (percentage < 0.6) {
+                    timerPath.style.stroke = 'var(--secondary-color)';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleWrongAnswer(true);
+                }
+            }, 50);
+        }
+
+        function submitAnswer() {
+            if (answerInput.value === '' || isProcessingAnswer) return;
+            
+            clearInterval(timerInterval);
+            const userAnswer = parseInt(answerInput.value);
+            
+            if (userAnswer === currentAnswer) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer(false);
+            }
+        }
+
+        answerInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+
+        function handleCorrectAnswer() {
+            isProcessingAnswer = true;
+            playCorrectSound();
+            feedback.innerText = "כל הכבוד!";
+            feedback.style.color = 'var(--success-color)';
+            
+            questionText.classList.add('pop');
+            setTimeout(() => questionText.classList.remove('pop'), 500);
+
+            let pointsEarned = 10 * currentLevel;
+            consecutiveCorrects++;
+            
+            if (isBonusQuestion) {
+                pointsEarned += 20 * currentLevel;
+                if (mistakes > 0) {
+                    document.getElementById('part-' + mistakes).style.opacity = '0';
+                    mistakes--;
+                    feedback.innerText = "בונוס הצלה! נמחק חלק!";
+                }
+            }
+
+            score += pointsEarned;
+            
+            scorePopup.innerText = `+${pointsEarned}`;
+            scorePopup.classList.add('score-popup-anim');
+            setTimeout(() => {
+                scorePopup.classList.remove('score-popup-anim');
+            }, 1000);
+
+            correctAnswersInLevel++;
+            updateUI();
+
+            setTimeout(() => {
+                if (correctAnswersInLevel >= answersToLevelUp) {
+                    levelUp();
+                } else {
+                    generateQuestion();
+                }
+            }, 1000);
+        }
+
+        function handleWrongAnswer(isTimeout) {
+            if (isProcessingAnswer) return;
+            isProcessingAnswer = true;
+            playWrongSound();
+            if (isTimeout) {
+                feedback.innerText = `נגמר הזמן! התשובה היא ${currentAnswer}`;
+            } else {
+                feedback.innerText = `טעות! התשובה היא ${currentAnswer}`;
+                answerInput.classList.add('shake');
+                setTimeout(() => answerInput.classList.remove('shake'), 500);
+            }
+            feedback.style.color = 'var(--danger-color)';
+            
+            consecutiveCorrects = 0; // Reset streak on mistake
+
+            if (isBonusQuestion) {
+                feedback.innerText += " (לא נורא, שאלת בונוס!)";
+                isBonusQuestion = false;
+                bonusIndicator.style.display = 'none';
+                setTimeout(generateQuestion, 2000);
+            } else {
+                mistakes++;
+                if (mistakes <= maxMistakes) {
+                    document.getElementById('part-' + mistakes).style.opacity = '1';
+                }
+
+                if (mistakes >= maxMistakes) {
+                    setTimeout(gameOver, 2000);
+                } else {
+                    setTimeout(generateQuestion, 2000); // 2 seconds to see the answer
+                }
+            }
+        }
+
+        function levelUp() {
+            playLevelUpSound();
+            currentLevel++;
+            correctAnswersInLevel = 0;
+            updateUI();
+            
+            levelUpOverlay.style.display = 'flex';
+            const bonusInfo = document.getElementById('level-up-bonus-info');
+            if (currentLevel >= 4) {
+                let requiredStreak = getRequiredStreak(currentLevel);
+                bonusInfo.innerText = `החל משלב זה: כל ${requiredStreak} תשובות נכונות ברצף יעניקו שאלת בונוס שמאפשרת למחוק טעות (וטעות בה אינה נחשבת לפסילה)!`;
+            } else {
+                bonusInfo.innerText = "";
+            }
+            
+            setTimeout(() => {
+                levelUpOverlay.style.display = 'none';
+                generateQuestion();
+            }, 3500);
+        }
+
+        function gameOver() {
+            gameScreen.classList.remove('active');
+            gameOverScreen.classList.add('active');
+            document.getElementById('final-score').innerText = `ניקוד סופי: ${score}`;
+            document.getElementById('final-level').innerText = `הגעת לשלב: ${currentLevel}`;
+        }
+
+        function updateUI() {
+            levelDisplay.innerText = `שלב: ${currentLevel}`;
+            scoreDisplay.innerText = `ניקוד: ${score}`;
+            let left = answersToLevelUp - correctAnswersInLevel;
+            questionsLeftDisplay.innerText = `עוד ${left} לשלב הבא`;
+            
+            if (currentLevel >= 4) {
+                bonusProgressDisplay.style.display = 'block';
+                if (isBonusQuestion) {
+                    bonusProgressDisplay.innerText = `זוהי שאלת בונוס!`;
+                } else {
+                    let requiredStreak = getRequiredStreak(currentLevel);
+                    let needed = requiredStreak - consecutiveCorrects;
+                    bonusProgressDisplay.innerText = `עוד ${needed} שאלות לבונוס`;
+                }
+            } else {
+                bonusProgressDisplay.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
