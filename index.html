@@ -706,6 +706,13 @@
             }
         });
 
+        // Scroll into view when keyboard opens on mobile
+        answerInput.addEventListener('focus', function () {
+            setTimeout(function () {
+                answerInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+
         function handleCorrectAnswer() {
             isProcessingAnswer = true;
             playCorrectSound();
